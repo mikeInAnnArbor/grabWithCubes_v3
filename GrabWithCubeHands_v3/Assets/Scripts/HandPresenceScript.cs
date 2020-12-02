@@ -16,7 +16,8 @@ public class HandPresenceScript : MonoBehaviour
     // for displaying the hands
     public GameObject handModelPrefab;
 
-    
+    private Animator handAnimator;
+
     // save the one device I want to be tracking (in Valem's design)
     private InputDevice targetDevice;
     private GameObject spawnedController;
@@ -64,11 +65,32 @@ public class HandPresenceScript : MonoBehaviour
             }
 
             spawnedHandModel = Instantiate(handModelPrefab, transform);
+            handAnimator = spawnedHandModel.GetComponent<Animator>();
         }
 
     }
 
-    // Update is called once per frame
+    void UpdateHandAnimation() 
+    {
+        if (targetDevice.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
+        {
+            handAnimator.SetFloat("Trigger", triggerValue);
+        }
+        else
+        {
+            handAnimator.SetFloat("Trigger", 0);
+        }
+        if (targetDevice.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
+        {
+            handAnimator.SetFloat("Grip", gripValue);
+        }
+        else
+        {
+            handAnimator.SetFloat("Grip", 0);
+        }
+    }
+ 
+   // Update is called once per frame
     void Update()
     {
             if (showController)
@@ -80,6 +102,7 @@ public class HandPresenceScript : MonoBehaviour
             {
                 spawnedHandModel.SetActive(true);
                 spawnedController.SetActive(false);
+                UpdateHandAnimation();
             }
     }
 
